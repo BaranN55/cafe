@@ -90,20 +90,120 @@
  background-size: cover;
  background-position: center;
  z-index: 50;
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ flex-direction: column;
  }
 
- /* Score Display */
+ /* Restart Button */
+ .restart-button {
+ background: linear-gradient(135deg, #F4E4BC 0%, #E6D3A3 50%, #D4B896 100%);
+ color: #8B4513;
+ border: 3px solid #654321;
+ padding: 20px 40px;
+ font-family: 'Luminari', 'Papyrus', 'Bradley Hand', cursive;
+ font-size: 24px;
+ font-weight: 900;
+ letter-spacing: 2px;
+ text-transform: uppercase;
+ border-radius: 15px;
+ cursor: pointer;
+ margin-top: 50px;
+ transition: all 0.3s;
+ text-shadow: 
+   1px 1px 0 rgba(255, 255, 255, 0.8),
+   2px 2px 4px rgba(139, 69, 19, 0.3);
+ box-shadow: 
+   0 4px 8px rgba(139, 69, 19, 0.3),
+   inset 0 1px 0 rgba(255, 255, 255, 0.6),
+   0 0 0 2px #8B4513;
+ }
+
+ .restart-button:hover {
+ background: linear-gradient(135deg, #E6D3A3 0%, #D4B896 50%, #CD853F 100%);
+ transform: translateY(-2px);
+ box-shadow: 
+   0 6px 12px rgba(139, 69, 19, 0.4),
+   inset 0 1px 0 rgba(255, 255, 255, 0.6),
+   0 0 0 2px #8B4513;
+ }
+
+ .win-button {
+ background: linear-gradient(135deg, #F4E4BC 0%, #E6D3A3 50%, #D4B896 100%);
+ color: #2F4F2F;
+ border: 3px solid #654321;
+ padding: 20px 40px;
+ font-family: 'Luminari', 'Papyrus', 'Bradley Hand', cursive;
+ font-size: 24px;
+ font-weight: 900;
+ letter-spacing: 2px;
+ text-transform: uppercase;
+ border-radius: 15px;
+ cursor: pointer;
+ margin-top: 50px;
+ transition: all 0.3s;
+ text-shadow: 
+   1px 1px 0 rgba(255, 255, 255, 0.8),
+   2px 2px 4px rgba(47, 79, 47, 0.3);
+ box-shadow: 
+   0 4px 8px rgba(139, 69, 19, 0.3),
+   inset 0 1px 0 rgba(255, 255, 255, 0.6),
+   0 0 0 2px #8B4513;
+ }
+
+ .win-button:hover {
+ background: linear-gradient(135deg, #E6D3A3 0%, #D4B896 50%, #CD853F 100%);
+ transform: translateY(-2px);
+ box-shadow: 
+   0 6px 12px rgba(139, 69, 19, 0.4),
+   inset 0 1px 0 rgba(255, 255, 255, 0.6),
+   0 0 0 2px #8B4513;
+ }
+
+ /* Score Display - Made really small and moved to bottom */
  .score {
  position: absolute;
- top: 10px;
+ bottom: 10px;
  right: 10px;
- color: white;
- font-size: 20px;
+ color: #8B4513;
+ font-family: 'Luminari', 'Papyrus', 'Bradley Hand', cursive;
+ font-size: 8px;
  font-weight: bold;
  z-index: 100;
- background: rgba(0,0,0,0.5);
- padding: 10px;
- border-radius: 5px;
+ background: rgba(244, 228, 188, 0.8);
+ padding: 4px 6px;
+ border-radius: 4px;
+ box-shadow: 0 1px 3px rgba(139, 69, 19, 0.3);
+ text-align: center;
+ min-width: 60px;
+ border: 1px solid #654321;
+ }
+
+ .score-item {
+ display: block;
+ margin: 1px 0;
+ text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.8);
+ letter-spacing: 0.2px;
+ }
+
+ .score-level {
+ font-size: 9px;
+ color: #8B0000;
+ font-weight: 900;
+ text-transform: uppercase;
+ }
+
+ .score-customers {
+ font-size: 8px;
+ color: #2F4F2F;
+ font-weight: 800;
+ }
+
+ .score-strikes {
+ font-size: 8px;
+ color: #B22222;
+ font-weight: 800;
  }
  </style>
 </head>
@@ -112,7 +212,11 @@
  <div id="background-container" class="background"></div>
 
  <!-- Score Display -->
- <div id="score-display" class="score">Level: 1 | Customers: 0/3 | Strikes: 0/3</div>
+ <div id="score-display" class="score">
+   <div class="score-item score-level">Level: 1</div>
+   <div class="score-item score-customers">Customers: 0/3</div>
+   <div class="score-item score-strikes">Strikes: 0/3</div>
+ </div>
 
  <!-- Character Container -->
  <div id="character-container"></div>
@@ -127,10 +231,14 @@
  <div id="shark-container" class="shark"></div>
 
  <!-- Game Over Container -->
- <div id="game-over-container" class="game-over" style="display: none;"></div>
+ <div id="game-over-container" class="game-over" style="display: none;">
+   <button class="restart-button" onclick="restartGame()">Start Over</button>
+ </div>
 
  <!-- Win Container -->
- <div id="win-container" class="game-over" style="display: none;"></div>
+ <div id="win-container" class="game-over" style="display: none;">
+   <button class="win-button" onclick="restartGame()">Play Again</button>
+ </div>
 
  <script>
  // Game Variables
@@ -178,7 +286,11 @@
  // Update Score Display
  function updateScoreDisplay() {
  const scoreDisplay = document.getElementById('score-display');
- scoreDisplay.textContent = Level: ${level} | Customers: ${customerCount}/3 | Strikes: ${sharkCount}/3;
+ scoreDisplay.innerHTML = `
+   <div class="score-item score-level">Level: ${level}</div>
+   <div class="score-item score-customers">Customers: ${customerCount}/3</div>
+   <div class="score-item score-strikes">Strikes: ${sharkCount}/3</div>
+ `;
  }
 
  // Initialize Game
@@ -465,9 +577,14 @@
 
  // Game Over
  function gameOver() {
+ // Hide all game elements
+ hideAllGameElements();
+ 
+ // Show game over screen
  changeBackground(backgroundImages.gameoverbg);
  const gameOverContainer = document.getElementById('game-over-container');
- gameOverContainer.style.display = 'block';
+ gameOverContainer.style.display = 'flex';
+ 
  try {
  const wompSound = new Audio('womp.mp3');
  wompSound.play();
@@ -478,15 +595,75 @@
 
  // Game Won
  function gameWon() {
+ // Hide all game elements
+ hideAllGameElements();
+ 
+ // Show win screen
  changeBackground(backgroundImages.win);
  const winContainer = document.getElementById('win-container');
- winContainer.style.display = 'block';
+ winContainer.style.display = 'flex';
+ 
  try {
  const concertTicketSound = new Audio('concert_ticket.mp3');
  concertTicketSound.play();
  } catch (e) {
  console.log('Audio file not found');
  }
+ }
+
+ // Hide All Game Elements
+ function hideAllGameElements() {
+ // Hide score display
+ document.getElementById('score-display').style.display = 'none';
+ 
+ // Hide character container
+ document.getElementById('character-container').style.display = 'none';
+ 
+ // Hide food container
+ document.getElementById('food-container').style.display = 'none';
+ 
+ // Hide speech bubble
+ document.getElementById('speech-bubble-container').style.visibility = 'hidden';
+ 
+ // Hide shark container
+ document.getElementById('shark-container').innerHTML = '';
+ }
+
+ // Restart Game
+ function restartGame() {
+ // Reset all game variables
+ level = 1;
+ customerCount = 0;
+ sharkCount = 0;
+ foods = [];
+ characters = [];
+ currentCharacter = null;
+ currentOrder = [];
+ selectedFoods = [];
+ 
+ // Clear any existing timers
+ if (orderTimer) {
+ clearTimeout(orderTimer);
+ }
+ 
+ // Hide game over/win screens
+ document.getElementById('game-over-container').style.display = 'none';
+ document.getElementById('win-container').style.display = 'none';
+ 
+ // Show all game elements
+ document.getElementById('score-display').style.display = 'block';
+ document.getElementById('character-container').style.display = 'block';
+ document.getElementById('food-container').style.display = 'block';
+ 
+ // Clear all containers
+ document.getElementById('character-container').innerHTML = '';
+ document.getElementById('food-container').innerHTML = '';
+ document.getElementById('speech-bubble-container').innerHTML = '';
+ document.getElementById('shark-container').innerHTML = '';
+ 
+ // Restart the game
+ updateScoreDisplay();
+ startLevel();
  }
 
  initGame();
