@@ -1,0 +1,19 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('assets/unnamed.png');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;   /* centers horizontally */
+    align-items: center;       /* centers vertically */
+    flex-direction: column;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;   /* horizontal centering of buttons */
+    align-items: center;       /* vertical alignment if needed */
+    gap: 20px;
+}
