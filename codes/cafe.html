@@ -45,6 +45,7 @@
     border-radius: 10px;
     padding: 10px;
     transform: translate(-50%, -50%);
+    visibility: hidden;
 }
 
  /* Shark Styles */
@@ -101,7 +102,7 @@
  // Load Assets
  const backgroundImages = {
  level1: "..//assets/level1.png",
- cafe: "assets/cafe.png",
+ cafe: "../assets/cafe.png",
  cafebg: "..//assets/bluecafebg.png",
  level2: "..//assets/level2.png",
  level3: "..//assets/level3.png",
@@ -164,6 +165,8 @@
  setTimeout(() => {
  // Change background to cafe
  changeBackground(backgroundImages.cafe);
+ document.getElementById("speech-bubble-container").style.visibility = "visible" //adds white middle box
+
 
  // Load foods
  loadFoods();
