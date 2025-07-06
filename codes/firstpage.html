@@ -2,36 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=920, height=600, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+    </style>
     <title>Landing Page</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-image: url('../assets/unnamed.png'); 
-            background-size: cover;
+            width: 920px;
+            height: 600px;
+            background-image: url('../assets/unnamed.png');
+            background-repeat: no-repeat;
             background-position: center;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            background-size: auto;
+            overflow: hidden;
         }
 
-        .button-container {
+        button-container {
             display: flex;
             gap: 20px;
         }
 
-        .button {
+        button {
             width: 150px;
             height: 50px;
+            background-image: url('assets/about button.png');
             background-size: cover;
+            background-repeat: no-repeat;
             border: none;
             cursor: pointer;
+            position: relative;
+            z-index: 2;
         }
-
-        .button:hover {
+        /* Link to external CSS */
+        button:hover {
             opacity: 0.8;
         }
     </style>
