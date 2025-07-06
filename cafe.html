@@ -26,8 +26,8 @@
  /* Character Styles */
  .character {
  position: absolute;
- width: 100px;
- height: 100px;
+ width: 150px;
+ height: 150px;
  z-index: 10;
  }
 
@@ -74,9 +74,8 @@
  position: absolute;
  width: 100px;
  height: 100px;
- top: 50%;
- left: 50%;
- transform: translate(-50%, -50%);
+ top: 20px;
+ left: 20px;
  z-index: 40;
  }
 
@@ -91,9 +90,10 @@
  background-position: center;
  z-index: 50;
  display: flex;
- align-items: center;
+ align-items: flex-end;
  justify-content: center;
  flex-direction: column;
+ padding-bottom: 50px;
  }
 
  /* Restart Button */
@@ -375,8 +375,9 @@
  const food = document.createElement('img');
  food.src = src;
  food.classList.add('food');
- //food.style.top = ${200 + index * 100}px;
- food.style.left = '50px';
+ // Position foods in a row at the bottom of the screen
+ food.style.bottom = '50px';
+ food.style.left = `${50 + index * 120}px`;
  food.dataset.foodType = src;
  food.addEventListener('click', handleFoodClick);
  foodContainer.appendChild(food);
@@ -408,7 +409,7 @@
  // Choose random character
  currentCharacter = characters[Math.floor(Math.random() * characters.length)];
  currentCharacter.style.display = 'block';
- currentCharacter.style.top = '100px';
+ currentCharacter.style.top = '400px';
  currentCharacter.style.left = '400px';
 
  // Choose random order
