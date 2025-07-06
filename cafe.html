@@ -105,7 +105,6 @@
  font-family: 'Luminari', 'Papyrus', 'Bradley Hand', cursive;
  font-size: 24px;
  font-weight: 900;
- position: fixed; bottom: 20px;
  letter-spacing: 2px;
  text-transform: uppercase;
  border-radius: 15px;
@@ -233,12 +232,12 @@
 
  <!-- Game Over Container -->
  <div id="game-over-container" class="game-over" style="display: none;">
-   <button class="restart-button" onclick="restartGame()">Start Over</button>
+   <button class="restart-button" onclick="window.location.href='index.html'">Start Over</button>
  </div>
 
  <!-- Win Container -->
  <div id="win-container" class="game-over" style="display: none;">
-   <button class="win-button" onclick="restartGame()">Play Again</button>
+   <button class="win-button" onclick="window.location.href='index.html'">Play Again</button>
  </div>
 
  <script>
