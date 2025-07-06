@@ -26,26 +26,47 @@
  /* Character Styles */
  .character {
  position: absolute;
+ width: 100px;
+ height: 100px;
+ z-index: 10;
  }
 
  /* Food Styles */
  .food {
  position: absolute;
+ width: 80px;
+ height: 80px;
+ cursor: pointer;
+ z-index: 20;
+ border: 2px solid transparent;
+ transition: border-color 0.2s;
+ }
 
+ .food:hover {
+ border-color: #ffff00;
+ }
+
+ .food.selected {
+ border-color: #00ff00;
  }
 
  /* Speech Bubble Styles */
 .speech-bubble {
     position: absolute;
-    top: 50%;
+    top: 20px;
     left: 50%;
-    width: 100px;
-    height: 50px;
+    width: 200px;
+    height: 80px;
     background-color: #fff;
     border-radius: 10px;
     padding: 10px;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     visibility: hidden;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
  /* Shark Styles */
@@ -53,6 +74,10 @@
  position: absolute;
  width: 100px;
  height: 100px;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ z-index: 40;
  }
 
  /* Game Over Styles */
@@ -64,12 +89,30 @@
  height: 100%;
  background-size: cover;
  background-position: center;
+ z-index: 50;
+ }
+
+ /* Score Display */
+ .score {
+ position: absolute;
+ top: 10px;
+ right: 10px;
+ color: white;
+ font-size: 20px;
+ font-weight: bold;
+ z-index: 100;
+ background: rgba(0,0,0,0.5);
+ padding: 10px;
+ border-radius: 5px;
  }
  </style>
 </head>
 <body>
  <!-- Background Container -->
  <div id="background-container" class="background"></div>
+
+ <!-- Score Display -->
+ <div id="score-display" class="score">Level: 1 | Customers: 0/3 | Strikes: 0/3</div>
 
  <!-- Character Container -->
  <div id="character-container"></div>
@@ -97,7 +140,9 @@
  let foods = [];
  let characters = [];
  let currentCharacter;
- let currentOrder;
+ let currentOrder = [];
+ let selectedFoods = [];
+ let orderTimer;
 
  // Load Assets
  const backgroundImages = {
@@ -130,6 +175,12 @@
 
  const sharkImage = '..//assets/shark.png';
 
+ // Update Score Display
+ function updateScoreDisplay() {
+ const scoreDisplay = document.getElementById('score-display');
+ scoreDisplay.textContent = Level: ${level} | Customers: ${customerCount}/3 | Strikes: ${sharkCount}/3;
+ }
+
  // Initialize Game
  function initGame() {
  // Load background images
@@ -152,21 +203,26 @@
  });
  });
 
+ // Initialize score display
+ updateScoreDisplay();
+
  // Start game
  startLevel();
  }
 
  // Start Level
  function startLevel() {
+ customerCount = 0;
+ updateScoreDisplay();
+ 
  // Change background
- changeBackground(backgroundImages[`level${level}`]);
+ changeBackground(backgroundImages[level${level}]);
 
  // Wait for 10 seconds
  setTimeout(() => {
  // Change background to cafe
  changeBackground(backgroundImages.cafe);
- document.getElementById("speech-bubble-container").style.visibility = "visible" //adds white middle box
-
+ document.getElementById("speech-bubble-container").style.visibility = "visible";
 
  // Load foods
  loadFoods();
@@ -181,13 +237,14 @@
 
  // Change Background
  function changeBackground(src) {
- document.getElementById('background-container').style.backgroundImage = `url(${src})`;
+ document.getElementById('background-container').style.backgroundImage = url(${src});
  }
 
  // Load Foods
  function loadFoods() {
  const foodContainer = document.getElementById('food-container');
  foodContainer.innerHTML = '';
+ foods = [];
 
  let foodType;
  switch (level) {
@@ -206,9 +263,10 @@
  const food = document.createElement('img');
  food.src = src;
  food.classList.add('food');
- food.style.top = `${index * 100}px`;
- food.style.left = '100px';
- food.addEventListener('click', checkOrder);
+ food.style.top = ${200 + index * 100}px;
+ food.style.left = '50px';
+ food.dataset.foodType = src;
+ food.addEventListener('click', handleFoodClick);
  foodContainer.appendChild(food);
  foods.push(food);
  });
@@ -231,44 +289,36 @@
 
  // Start Customer Interaction
  function startCustomerInteraction() {
+ // Clear previous selections
+ selectedFoods = [];
+ foods.forEach(food => food.classList.remove('selected'));
+
  // Choose random character
  currentCharacter = characters[Math.floor(Math.random() * characters.length)];
  currentCharacter.style.display = 'block';
- currentCharacter.style.top = '0px';
- currentCharacter.style.left = '0px';
-
- // Move character to center
- moveCharacterToCenter();
+ currentCharacter.style.top = '100px';
+ currentCharacter.style.left = '400px';
 
  // Choose random order
  chooseRandomOrder();
  }
 
- // Move Character to Center
- function moveCharacterToCenter() {
- const characterContainer = document.getElementById('character-container');
- const characterRect = currentCharacter.getBoundingClientRect();
- const centerX = window.innerWidth / 2 - characterRect.width / 2;
- const centerY = window.innerHeight / 2 - characterRect.height / 2;
-
- currentCharacter.style.top = `${centerY}px`;
- currentCharacter.style.left = `${centerX}px`;
- }
-
  // Choose Random Order
  function chooseRandomOrder() {
- let order;
+ let order = [];
  switch (level) {
  case 1:
  order = [foodImages.bites[Math.floor(Math.random() * foodImages.bites.length)]];
  break;
  case 2:
+ // Two drinks for level 2
  order = [
  foodImages.drinks[Math.floor(Math.random() * foodImages.drinks.length)],
  foodImages.drinks[Math.floor(Math.random() * foodImages.drinks.length)]
  ];
  break;
  case 3:
+ // Two snacks for level 3
  order = [
  foodImages.snacks[Math.floor(Math.random() * foodImages.snacks.length)],
  foodImages.snacks[Math.floor(Math.random() * foodImages.snacks.length)]
@@ -290,8 +340,9 @@
  currentOrder.forEach((src) => {
  const orderImg = document.createElement('img');
  orderImg.src = src;
- orderImg.style.width = '50px';
- orderImg.style.height = '50px';
+ orderImg.style.width = '40px';
+ orderImg.style.height = '40px';
+ orderImg.style.margin = '2px';
  speechBubbleContainer.appendChild(orderImg);
  });
 
@@ -299,69 +350,89 @@
  let timer;
  switch (level) {
  case 1:
- timer = 10;
+ timer = 15;
  break;
  case 2:
- timer = 5;
+ timer = 10;
  break;
  case 3:
- timer = 3;
+ timer = 8;
  break;
  }
 
- setTimeout(() => {
- // Check if customer order is fulfilled
- checkCustomerOrder();
+ orderTimer = setTimeout(() => {
+ // Time's up - check if order is complete
+ checkOrderCompletion();
  }, timer * 1000);
  }
 
- // Check Customer Order
- function checkCustomerOrder() {
- // Check if foods match order
- const foodContainer = document.getElementById('food-container');
- const foodImgs = foodContainer.getElementsByTagName('img');
-
- let orderFulfilled = true;
- currentOrder.forEach((src) => {
- let found = false;
- Array.from(foodImgs).forEach((foodImg) => {
- if (foodImg.src === src) {
- found = true;
+ // Handle Food Click
+ function handleFoodClick(event) {
+ const clickedFood = event.target;
+ const foodSrc = clickedFood.dataset.foodType;
+ 
+ // Check if this food is part of the current order
+ const orderIndex = currentOrder.findIndex(orderItem => orderItem === foodSrc);
+ 
+ if (orderIndex !== -1) {
+ // Correct food selected
+ selectedFoods.push(foodSrc);
+ clickedFood.classList.add('selected');
+ 
+ // Remove this item from the order (to handle duplicates)
+ currentOrder.splice(orderIndex, 1);
+ 
+ // Check if order is complete
+ if (currentOrder.length === 0) {
+ clearTimeout(orderTimer);
+ completeOrder();
  }
- });
-
- if (!found) {
- orderFulfilled = false;
- }
- });
-
- if (!orderFulfilled) {
- // Display shark
+ } else {
+ // Wrong food selected
  displayShark();
  }
+ }
 
- // Repeat customer interaction
+ // Complete Order
+ function completeOrder() {
+ // Hide current character
+ currentCharacter.style.display = 'none';
+ 
+ // Hide speech bubble
+ document.getElementById('speech-bubble-container').style.visibility = 'hidden';
+ 
+ // Move to next customer
  customerCount++;
+ updateScoreDisplay();
+ 
  if (customerCount < 3) {
+ // Next customer
+ setTimeout(() => {
+ document.getElementById('speech-bubble-container').style.visibility = 'visible';
  startCustomerInteraction();
+ }, 1000);
  } else {
- // Proceed to next level
+ // Level complete
  level++;
  if (level > 3) {
  // Game won
  gameWon();
  } else {
+ setTimeout(() => {
  startLevel();
+ }, 2000);
  }
  }
  }
 
- // Check Order
- function checkOrder(event) {
- const clickedFood = event.target;
- if (!currentOrder.includes(clickedFood.src)) {
- // Display shark
+ // Check Order Completion (when timer runs out)
+ function checkOrderCompletion() {
+ if (currentOrder.length > 0) {
+ // Order not complete - display shark
  displayShark();
+ } else {
+ // Order complete
+ completeOrder();
  }
  }
 
@@ -371,12 +442,24 @@
  sharkContainer.innerHTML = '';
  const sharkImg = document.createElement('img');
  sharkImg.src = sharkImage;
+ sharkImg.style.width = '100%';
+ sharkImg.style.height = '100%';
  sharkContainer.appendChild(sharkImg);
 
  sharkCount++;
+ updateScoreDisplay();
+ 
  if (sharkCount >= 3) {
  // Game over
+ setTimeout(() => {
  gameOver();
+ }, 2000);
+ } else {
+ // Continue with next customer
+ setTimeout(() => {
+ sharkContainer.innerHTML = '';
+ completeOrder();
+ }, 2000);
  }
  }
 
@@ -385,8 +468,12 @@
  changeBackground(backgroundImages.gameoverbg);
  const gameOverContainer = document.getElementById('game-over-container');
  gameOverContainer.style.display = 'block';
+ try {
  const wompSound = new Audio('womp.mp3');
  wompSound.play();
+ } catch (e) {
+ console.log('Audio file not found');
+ }
  }
 
  // Game Won
@@ -394,8 +481,12 @@
  changeBackground(backgroundImages.win);
  const winContainer = document.getElementById('win-container');
  winContainer.style.display = 'block';
+ try {
  const concertTicketSound = new Audio('concert_ticket.mp3');
  concertTicketSound.play();
+ } catch (e) {
+ console.log('Audio file not found');
+ }
  }
 
  initGame();
