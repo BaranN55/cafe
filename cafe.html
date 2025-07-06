@@ -328,11 +328,11 @@
  updateScoreDisplay();
  
  // Change background
- changeBackground(backgroundImages[level${level}]);
+ //changeBackground(backgroundImages[level${level}]);
 
  // Wait for 10 seconds
  setTimeout(() => {
- // Change background to cafe
+ //Change background to cafe
  changeBackground(backgroundImages.cafe);
  document.getElementById("speech-bubble-container").style.visibility = "visible";
 
@@ -349,7 +349,7 @@
 
  // Change Background
  function changeBackground(src) {
- document.getElementById('background-container').style.backgroundImage = url(${src});
+ //document.getElementById('background-container').style.backgroundImage = url(${src});
  }
 
  // Load Foods
@@ -370,12 +370,12 @@
  foodType = foodImages.snacks;
  break;
  }
-
+ 
  foodType.forEach((src, index) => {
  const food = document.createElement('img');
  food.src = src;
  food.classList.add('food');
- food.style.top = ${200 + index * 100}px;
+ //food.style.top = ${200 + index * 100}px;
  food.style.left = '50px';
  food.dataset.foodType = src;
  food.addEventListener('click', handleFoodClick);
