@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Game</title>
+ <style>
+ /* Global Styles */
+ body {
+ margin: 0;
+ padding: 0;
+ overflow: hidden;
+ }
+
+ /* Background Styles */
+ .background {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-size: cover;
+ background-position: center;
+ }
+
+ /* Character Styles */
+ .character {
+ position: absolute;
+ width: 100px;
+ height: 100px;
+ }
+
+ /* Food Styles */
+ .food {
+ position: absolute;
+ width: 50px;
+ height: 50px;
+ }
+
+ /* Speech Bubble Styles */
+ .speech-bubble {
+ position: absolute;
+ width: 100px;
+ height: 50px;
+ background-color: #fff;
+ border-radius: 10px;
+ padding: 10px;
+ }
+
+ /* Shark Styles */
+ .shark {
+ position: absolute;
+ width: 100px;
+ height: 100px;
+ }
+
+ /* Game Over Styles */
+ .game-over {
+ position: absolute;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-size: cover;
+ background-position: center;
+ }
+ </style>
+</head>
+<body>
+ <!-- Background Container -->
+ <div id="background-container" class="background"></div>
+
+ <!-- Character Container -->
+ <div id="character-container"></div>
+
+ <!-- Food Container -->
+ <div id="food-container"></div>
+
+ <!-- Speech Bubble Container -->
+ <div id="speech-bubble-container" class="speech-bubble"></div>
+
+ <!-- Shark Container -->
+ <div id="shark-container" class="shark"></div>
+
+ <!-- Game Over Container -->
+ <div id="game-over-container" class="game-over" style="display: none;"></div>
+
+ <!-- Win Container -->
+ <div id="win-container" class="game-over" style="display: none;"></div>
+
+ <script>
+ // Game Variables
+ let level = 1;
+ let customerCount = 0;
+ let sharkCount = 0;
+ let foods = [];
+ let characters = [];
+ let currentCharacter;
+ let currentOrder;
+
+ // Load Assets
+ const backgroundImages = {
+ level1: 'level1.jpg',
+ cafe: 'cafe.jpg',
+ level2: 'level2.jpg',
+ level3: 'level3.jpg',
+ gameoverbg: 'gameoverbg.jpg',
+ win: 'win.jpg'
+ };
+
+ const characterImages = [
+ 'character1.png',
+ 'character2.png',
+ 'character3.png',
+ 'character4.png',
+ 'character5.png',
+ 'character6.png',
+ 'character7.png',
+ 'character8.png',
+ 'character9.png'
+ ];
+
+ const foodImages = {
+ bites: ['bite1.png', 'bite2.png', 'bite3.png'],
+ drinks: ['drink1.png', 'drink2.png', 'drink3.png'],
+ snacks: ['snack1.png', 'snack2.png', 'snack3.png']
+ };
+
+ const sharkImage = 'shark.png';
+
+ // Initialize Game
+ function initGame() {
+ // Load background images
+ Object.keys(backgroundImages).forEach((key) => {
+ const img = new Image();
+ img.src = backgroundImages[key];
+ });
+
+ // Load character images
+ characterImages.forEach((src) => {
+ const img = new Image();
+ img.src = src;
+ });
+
+ // Load food images
+ Object.keys(foodImages).forEach((key) => {
+ foodImages[key].forEach((src) => {
+ const img = new Image();
+ img.src = src;
+ });
+ });
+
+ // Start game
+ startLevel();
+ }
+
+ // Start Level
+ function startLevel() {
+ // Change background
+ changeBackground(backgroundImages[`level${level}`]);
+
+ // Wait for 10 seconds
+ setTimeout(() => {
+ // Change background to cafe
+ changeBackground(backgroundImages.cafe);
+
+ // Load foods
+ loadFoods();
+
+ // Load characters
+ loadCharacters();
+
+ // Start customer interaction
+ startCustomerInteraction();
+ }, 10000);
+ }
+
+ // Change Background
+ function changeBackground(src) {
+ document.getElementById('background-container').style.backgroundImage = `url(${src})`;
+ }
+
+ // Load Foods
+ function loadFoods() {
+ const foodContainer = document.getElementById('food-container');
+ foodContainer.innerHTML = '';
+
+ let foodType;
+ switch (level) {
+ case 1:
+ foodType = foodImages.bites;
+ break;
+ case 2:
+ foodType = foodImages.drinks;
+ break;
+ case 3:
+ foodType = foodImages.snacks;
+ break;
+ }
+
+ foodType.forEach((src, index) => {
+ const food = document.createElement('img');
+ food.src = src;
+ food.classList.add('food');
+ food.style.top = `${index * 100}px`;
+ food.style.left = '100px';
+ food.addEventListener('click', checkOrder);
+ foodContainer.appendChild(food);
+ foods.push(food);
+ });
+ }
+
+ // Load Characters
+ function loadCharacters() {
+ const characterContainer = document.getElementById('character-container');
+ characterContainer.innerHTML = '';
+
+ characters = characterImages.map((src) => {
+ const character = document.createElement('img');
+ character.src = src;
+ character.classList.add('character');
+ character.style.display = 'none';
+ characterContainer.appendChild(character);
+ return character;
+ });
+ }
+
+ // Start Customer Interaction
+ function startCustomerInteraction() {
+ // Choose random character
+ currentCharacter = characters[Math.floor(Math.random() * characters.length)];
+ currentCharacter.style.display = 'block';
+ currentCharacter.style.top = '0px';
+ currentCharacter.style.left = '0px';
+
+ // Move character to center
+ moveCharacterToCenter();
+
+ // Choose random order
+ chooseRandomOrder();
+ }
+
+ // Move Character to Center
+ function moveCharacterToCenter() {
+ const characterContainer = document.getElementById('character-container');
+ const characterRect = currentCharacter.getBoundingClientRect();
+ const centerX = window.innerWidth / 2 - characterRect.width / 2;
+ const centerY = window.innerHeight / 2 - characterRect.height / 2;
+
+ currentCharacter.style.top = `${centerY}px`;
+ currentCharacter.style.left = `${centerX}px`;
+ }
+
+ // Choose Random Order
+ function chooseRandomOrder() {
+ let order;
+ switch (level) {
+ case 1:
+ order = [foodImages.bites[Math.floor(Math.random() * foodImages.bites.length)]];
+ break;
+ case 2:
+ order = [
+ foodImages.drinks[Math.floor(Math.random() * foodImages.drinks.length)],
+ foodImages.drinks[Math.floor(Math.random() * foodImages.drinks.length)]
+ ];
+ break;
+ case 3:
+ order = [
+ foodImages.snacks[Math.floor(Math.random() * foodImages.snacks.length)],
+ foodImages.snacks[Math.floor(Math.random() * foodImages.snacks.length)]
+ ];
+ break;
+ }
+
+ currentOrder = order;
+
+ // Display order on speech bubble
+ displayOrderOnSpeechBubble();
+ }
+
+ // Display Order on Speech Bubble
+ function displayOrderOnSpeechBubble() {
+ const speechBubbleContainer = document.getElementById('speech-bubble-container');
+ speechBubbleContainer.innerHTML = '';
+
+ currentOrder.forEach((src) => {
+ const orderImg = document.createElement('img');
+ orderImg.src = src;
+ orderImg.style.width = '50px';
+ orderImg.style.height = '50px';
+ speechBubbleContainer.appendChild(orderImg);
+ });
+
+ // Set timer
+ let timer;
+ switch (level) {
+ case 1:
+ timer = 10;
+ break;
+ case 2:
+ timer = 5;
+ break;
+ case 3:
+ timer = 3;
+ break;
+ }
+
+ setTimeout(() => {
+ // Check if customer order is fulfilled
+ checkCustomerOrder();
+ }, timer * 1000);
+ }
+
+ // Check Customer Order
+ function checkCustomerOrder() {
+ // Check if foods match order
+ const foodContainer = document.getElementById('food-container');
+ const foodImgs = foodContainer.getElementsByTagName('img');
+
+ let orderFulfilled = true;
+ currentOrder.forEach((src) => {
+ let found = false;
+ Array.from(foodImgs).forEach((foodImg) => {
+ if (foodImg.src === src) {
+ found = true;
+ }
+ });
+
+ if (!found) {
+ orderFulfilled = false;
+ }
+ });
+
+ if (!orderFulfilled) {
+ // Display shark
+ displayShark();
+ }
+
+ // Repeat customer interaction
+ customerCount++;
+ if (customerCount < 3) {
+ startCustomerInteraction();
+ } else {
+ // Proceed to next level
+ level++;
+ if (level > 3) {
+ // Game won
+ gameWon();
+ } else {
+ startLevel();
+ }
+ }
+ }
+
+ // Check Order
+ function checkOrder(event) {
+ const clickedFood = event.target;
+ if (!currentOrder.includes(clickedFood.src)) {
+ // Display shark
+ displayShark();
+ }
+ }
+
+ // Display Shark
+ function displayShark() {
+ const sharkContainer = document.getElementById('shark-container');
+ sharkContainer.innerHTML = '';
+ const sharkImg = document.createElement('img');
+ sharkImg.src = sharkImage;
+ sharkContainer.appendChild(sharkImg);
+
+ sharkCount++;
+ if (sharkCount >= 3) {
+ // Game over
+ gameOver();
+ }
+ }
+
+ // Game Over
+ function gameOver() {
+ changeBackground(backgroundImages.gameoverbg);
+ const gameOverContainer = document.getElementById('game-over-container');
+ gameOverContainer.style.display = 'block';
+ const wompSound = new Audio('womp.mp3');
+ wompSound.play();
+ }
+
+ // Game Won
+ function gameWon() {
+ changeBackground(backgroundImages.win);
+ const winContainer = document.getElementById('win-container');
+ winContainer.style.display = 'block';
+ const concertTicketSound = new Audio('concert_ticket.mp3');
+ concertTicketSound.play();
+ }
+
+ initGame();
+ </script>
+</body>
+</html>
