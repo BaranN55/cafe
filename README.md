@@ -1,1 +1,4 @@
 Make money and race against the clock to serve hungry raccoon customers at your new job - Bim Borton's!
+Cafe chaos is a rapturous game, which the player should give make the orders of the racoon costumers to satisfy them, and if passing all the three levels, thay will win a consert ticket (not for REAL). We build this project for the JPEG an overnight gender-focused game jam at Carleton University. We have given a picture of racoons in Tim Hortons and we had to build a game that is related to this picture. Our idea was that using HTML and a little bit of JS to build a game that looks like overcooked but in our cute racoon version.
+Throught this projet, we most struggled with debuging and positioning different elements in the screen but as we went through codes over and over and with some research, we managed to build this masterpiece.
+I hope you enjoy playing it!
